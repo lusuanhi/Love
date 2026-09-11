@@ -4263,7 +4263,7 @@ async function typeFinalLetter(
 
   // Nghỉ lâu khi xuống đoạn
   await finalLetterDelay(
-    700
+    400
   );
 
 }
@@ -4298,7 +4298,7 @@ else {
 
   // Tốc độ từng chữ
   await finalLetterDelay(
-    90
+    70
   );
 
 }
