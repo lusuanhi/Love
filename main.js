@@ -5557,7 +5557,7 @@ nebulaGroup.children.forEach((glow) => {
    DEBUG / TEST SHORTCUT
 ========================= */
 
-const TEST_MODE = true;
+const TEST_MODE = false;
 
 window.addEventListener(
   "keydown",
