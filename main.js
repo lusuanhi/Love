@@ -4189,14 +4189,15 @@ Như anh đã nói là sẽ hong làm thất vọng đâu.
 Anh muốn làm nhiều thiệt là nhiều điều bất ngờ nữa dành cho em kìa.
 
 Tại vì hiện tại anh chỉ có thể ở cạnh và chia sẻ cùng em thui.
-Anh biết mình chỉ là mới bắt đầu nhưng đã đi rất nhanh.
+Nên anh muốn dành cho em một món quà nho nhỏ này, hy vọng bé thích hihi.
 
+Anh biết mình chỉ là mới bắt đầu nhưng đã đi rất nhanh.
 Anh hy vọng mình sẽ cùng đi thật xa thật dài nữa.
 Sẽ còn nhiều thứ khó khăn lắm nhưng mà hy vọng cả hai mình sẽ cùng vượt qua.
 
-Nên là....
-Em bé ơi....
-...
+Nên là.......
+Em bé ơi........
+......................
 
 `;
 
