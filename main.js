@@ -4254,34 +4254,50 @@ async function typeFinalLetter(
 
 
     if (
-      char === "\n"
-    ) {
+  char === "\n"
+) {
 
-      await finalLetterDelay(
-        TEST_MODE ? 10 : 550
-      );
+  // Nghỉ lâu khi xuống đoạn
+  await finalLetterDelay(
+    900
+  );
 
-    }
+}
 
-    else if (
-      char === "." ||
-      char === "!" ||
-      char === "?"
-    ) {
+else if (
+  char === "." ||
+  char === "!" ||
+  char === "?"
+) {
 
-      await finalLetterDelay(
-        TEST_MODE ? 10 : 400
-      );
+  // Nghỉ ở cuối câu
+  await finalLetterDelay(
+    650
+  );
 
-    }
+}
 
-    else {
+else if (
+  char === "," ||
+  char === ";" ||
+  char === ":"
+) {
 
-      await finalLetterDelay(
-        TEST_MODE ? 2 : 75
-      );
+  // Nghỉ nhẹ ở dấu phẩy
+  await finalLetterDelay(
+    280
+  );
 
-    }
+}
+
+else {
+
+  // Tốc độ từng chữ
+  await finalLetterDelay(
+    120
+  );
+
+}
   }
 }
 
