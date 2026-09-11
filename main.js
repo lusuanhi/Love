@@ -4258,7 +4258,7 @@ async function typeFinalLetter(
     ) {
 
       await finalLetterDelay(
-        TEST_MODE ? 10 : 260
+        TEST_MODE ? 10 : 550
       );
 
     }
@@ -4270,7 +4270,7 @@ async function typeFinalLetter(
     ) {
 
       await finalLetterDelay(
-        TEST_MODE ? 10 : 180
+        TEST_MODE ? 10 : 400
       );
 
     }
@@ -4278,7 +4278,7 @@ async function typeFinalLetter(
     else {
 
       await finalLetterDelay(
-        TEST_MODE ? 2 : 32
+        TEST_MODE ? 2 : 75
       );
 
     }
