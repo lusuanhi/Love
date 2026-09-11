@@ -199,7 +199,8 @@ hintOverlay.innerHTML = `
 
       font-weight: bold;
     ">
-      Giờ-Ngày-Tháng-Năm 💌
+      Pass là thời gian
+      mà mình nhắn tin lại đóaa
     </div>
 
 
