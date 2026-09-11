@@ -1812,27 +1812,31 @@ function startReactionRound() {
           rgba(255,80,160,1)
         `;
 
-      reactionFailTimer =
-        setTimeout(() => {
+      const reactionTimeLimit =
+  550 -
+  reactionSuccess * 100;
 
-          if (!reactionReady) {
-            return;
-          }
+reactionFailTimer =
+  setTimeout(() => {
 
-          reactionReady = false;
+    if (!reactionReady) {
+      return;
+    }
 
-          reactionStatus.textContent =
-            "Cùi bắppp 😝";
+    reactionReady = false;
 
-          resetReactionHeartStyle();
+    reactionStatus.textContent =
+      "Chậm rồiii 😝";
 
-          setTimeout(() => {
+    resetReactionHeartStyle();
 
-            startReactionRound();
+    setTimeout(() => {
 
-          }, 900);
+      startReactionRound();
 
-        }, 900);
+    }, 650);
+
+  }, reactionTimeLimit);
 
     }, waitTime);
 }
@@ -4259,7 +4263,7 @@ async function typeFinalLetter(
 
   // Nghỉ lâu khi xuống đoạn
   await finalLetterDelay(
-    900
+    700
   );
 
 }
@@ -4272,7 +4276,7 @@ else if (
 
   // Nghỉ ở cuối câu
   await finalLetterDelay(
-    650
+    500
   );
 
 }
@@ -4294,7 +4298,7 @@ else {
 
   // Tốc độ từng chữ
   await finalLetterDelay(
-    120
+    90
   );
 
 }
@@ -5573,7 +5577,7 @@ nebulaGroup.children.forEach((glow) => {
    DEBUG / TEST SHORTCUT
 ========================= */
 
-const TEST_MODE = false;
+const TEST_MODE = true;
 
 window.addEventListener(
   "keydown",
