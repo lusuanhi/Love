@@ -7,7 +7,7 @@ console.clear();
    PASSWORD
 ========================= */
 
-const PASSWORD = "104919072026";
+const PASSWORD = "10h49p19072026";
 
 const passwordScreen =
   document.getElementById("password-screen");
