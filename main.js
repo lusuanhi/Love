@@ -2901,94 +2901,168 @@ function pushShift(targetShift) {
 
 
 /* =========================
-   INNER ROSE
+   INNER 3D HEART
 ========================= */
 
 const innerPts = [];
+const innerColors = [];
 
-const ROSE_LAYERS = 160;
-const POINTS_PER_LAYER = 312; // 160 * 312 = 49920 ~ 50k
-const PETAL_COUNT = 8;
+const HEART_PARTICLE_COUNT = 50000;
 
-for (let i = 0; i < ROSE_LAYERS; i++) {
+// Chỉnh kích thước trái tim ở đây
+const HEART_SCALE = 0.80;
 
-  const u = i / (ROSE_LAYERS - 1);
 
-  // từ nụ ở giữa ra cánh ngoài
-  const radiusBase =
-    0.25 + u * 6.8;
+// Tạo một điểm trên bề mặt heart 3D
+function create3DHeartPoint() {
 
-  const twist =
-    u * Math.PI * 2.8;
-
-  const budClose =
-    Math.pow(1 - u, 1.6) * 4.0;
-
-  const outerDroop =
-    Math.pow(u, 1.7) * 3.2;
-
-  for (let j = 0; j < POINTS_PER_LAYER; j++) {
-
-    const a =
-      (j / POINTS_PER_LAYER) * Math.PI * 2;
-
-    // độ nở của cánh
-    const petal =
-      Math.pow(
-        Math.abs(
-          Math.sin((PETAL_COUNT * a) / 2)
-        ),
-        1.7
-      );
-
-    let r =
-      radiusBase * (0.22 + 0.95 * petal);
-
-    let x =
-      Math.cos(a + twist) * r;
-
-    let z =
-      Math.sin(a + twist) * r;
-
-    let y =
-      u * 8.5 - 4.0;
-
-    // nụ ở giữa khép chặt
-    y -= budClose * (1.0 - petal);
-
-    // cánh ngoài hơi cụp xuống
-    y -= outerDroop * petal * 0.55;
-
-    // gợn nhẹ cho cánh nhìn tự nhiên hơn
-    y +=
-      Math.cos(a * PETAL_COUNT) *
-      0.15 *
-      (0.3 + u);
-
-    // cánh ngoài mở lớn hơn
-    const bloom =
-      1 + u * 0.35;
-
-    x *= bloom;
-    z *= bloom;
-
-    // thêm nhiễu nhẹ cho particle
-    x += (Math.random() - 0.5) * 0.14;
-    y += (Math.random() - 0.5) * 0.14;
-    z += (Math.random() - 0.5) * 0.14;
-
-    innerPts.push(
-      new THREE.Vector3(x, y, z)
+  const t =
+    Math.acos(
+      Math.random() * 2 - 1
     );
 
-    innerSizes.push(
-      0.6 + Math.random() * 1.3
-    );
+  const u =
+    Math.random() *
+    Math.PI *
+    2;
 
-    pushShift(innerShift);
-  }
+
+  const sinT =
+    Math.sin(t);
+
+
+  const x =
+    16 *
+    Math.pow(
+      Math.sin(u),
+      3
+    ) *
+    sinT;
+
+
+  const y =
+    (
+      13 * Math.cos(u)
+      -
+      5 * Math.cos(2 * u)
+      -
+      2 * Math.cos(3 * u)
+      -
+      Math.cos(4 * u)
+    )
+    *
+    sinT;
+
+
+  const z =
+    12 *
+    Math.cos(t);
+
+
+  // Nhiễu nhẹ để particle
+  // không quá "toán học"
+  const jitter =
+    0.18;
+
+
+  return new THREE.Vector3(
+
+    x * HEART_SCALE +
+    (Math.random() - 0.5) *
+    jitter,
+
+    y * HEART_SCALE +
+    (Math.random() - 0.5) *
+    jitter,
+
+    z * HEART_SCALE +
+    (Math.random() - 0.5) *
+    jitter
+
+  );
 }
 
+
+// 50k particle
+for (
+  let i = 0;
+  i < HEART_PARTICLE_COUNT;
+  i++
+) {
+
+  const point =
+    create3DHeartPoint();
+
+  innerPts.push(
+    point
+  );
+
+
+  // Màu đỏ / hồng ngẫu nhiên
+  const color =
+    new THREE.Color();
+
+  const randomColor =
+    Math.random();
+
+
+  if (
+    randomColor < 0.55
+  ) {
+
+    color.set(
+      0xff294f
+    );
+
+  }
+
+  else if (
+    randomColor < 0.80
+  ) {
+
+    color.set(
+      0xe30c2a
+    );
+
+  }
+
+  else if (
+    randomColor < 0.95
+  ) {
+
+    color.set(
+      0xff6680
+    );
+
+  }
+
+  else {
+
+    color.set(
+      0xffc4cf
+    );
+
+  }
+
+
+  innerColors.push(
+    color.r,
+    color.g,
+    color.b
+  );
+
+
+  // Giữ attribute cũ
+  // để không phá structure project
+  innerSizes.push(
+    0.8 +
+    Math.random() * 1.1
+  );
+
+  pushShift(
+    innerShift
+  );
+}
 /* =========================
    OUTER DISC / GALAXY
 ========================= */
@@ -3062,6 +3136,39 @@ innerGeometry.setAttribute(
     4
   )
 );
+
+innerGeometry.setAttribute(
+  "color",
+  new THREE.Float32BufferAttribute(
+    innerColors,
+    3
+  )
+);
+
+
+/* =========================
+   HEART MATERIAL
+========================= */
+
+const heartMaterial =
+  new THREE.PointsMaterial({
+
+    size: 0.16,
+
+    vertexColors: true,
+
+    transparent: true,
+
+    opacity: 0.95,
+
+    depthTest: false,
+
+    depthWrite: false,
+
+    blending:
+      THREE.AdditiveBlending
+
+  });
 
 
 const outerGeometry =
@@ -3424,7 +3531,560 @@ function sortPointGeometryFromCenter(geometry) {
 sortPointGeometryFromCenter(
   innerGeometry
 );
+/* =========================
+   HEART <-> TEXT MORPH
+========================= */
 
+const INNER_MORPH_COUNT =
+  innerGeometry
+    .attributes
+    .position
+    .count;
+
+
+// Lưu hình trái tim gốc
+// SAU KHI geometry đã sort
+const heartTargetPositions =
+  new Float32Array(
+    innerGeometry
+      .attributes
+      .position
+      .array
+  );
+
+const heartTargetColors =
+  new Float32Array(
+    innerGeometry
+      .attributes
+      .color
+      .array
+  );
+
+
+// Target hiện tại
+const morphTargetPositions =
+  new Float32Array(
+    heartTargetPositions
+  );
+
+
+// Velocity XYZ cho mỗi particle
+const morphVelocities =
+  new Float32Array(
+    INNER_MORPH_COUNT * 3
+  );
+
+
+let innerTextMode = false;
+
+
+/* =========================
+   TEXT CANVAS
+========================= */
+
+const morphTextCanvas =
+  document.createElement(
+    "canvas"
+  );
+
+morphTextCanvas.width =
+  900;
+
+morphTextCanvas.height =
+  320;
+
+
+const morphTextCtx =
+  morphTextCanvas.getContext(
+    "2d"
+  );
+
+
+const MORPH_TEXT_SCALE =
+  0.09;
+
+
+/* =========================
+   SAMPLE TEXT
+========================= */
+
+function sampleMorphText(
+  inputText
+) {
+
+  const text =
+    inputText
+      .normalize("NFC")
+      .trim();
+
+
+  if (!text) {
+    return [];
+  }
+
+
+  morphTextCtx.clearRect(
+    0,
+    0,
+    morphTextCanvas.width,
+    morphTextCanvas.height
+  );
+
+
+  morphTextCtx.fillStyle =
+    "white";
+
+
+  // Font tự nhỏ lại nếu chữ dài
+  let fontSize = 112;
+
+  morphTextCtx.font =
+    `900 ${fontSize}px Arial`;
+
+
+  while (
+    fontSize > 42 &&
+    morphTextCtx.measureText(
+      text
+    ).width > 820
+  ) {
+
+    fontSize -= 4;
+
+    morphTextCtx.font =
+      `900 ${fontSize}px Arial`;
+  }
+
+
+  morphTextCtx.textAlign =
+    "center";
+
+  morphTextCtx.textBaseline =
+    "middle";
+
+
+  morphTextCtx.fillText(
+    text,
+    morphTextCanvas.width / 2,
+    morphTextCanvas.height / 2
+  );
+
+
+  const imageData =
+    morphTextCtx.getImageData(
+      0,
+      0,
+      morphTextCanvas.width,
+      morphTextCanvas.height
+    );
+
+
+  const data =
+    imageData.data;
+
+  const points = [];
+
+
+  // step = 2 để nhẹ hơn
+  // nhưng vẫn đủ dày
+  for (
+    let y = 0;
+    y < morphTextCanvas.height;
+    y += 2
+  ) {
+
+    for (
+      let x = 0;
+      x < morphTextCanvas.width;
+      x += 2
+    ) {
+
+      const alpha =
+        data[
+          (
+            y *
+            morphTextCanvas.width +
+            x
+          ) *
+          4 +
+          3
+        ];
+
+
+      if (alpha > 140) {
+
+        points.push({
+
+          x:
+            (
+              x -
+              morphTextCanvas.width / 2
+            ) *
+            MORPH_TEXT_SCALE,
+
+          y:
+            -(
+              y -
+              morphTextCanvas.height / 2
+            ) *
+            MORPH_TEXT_SCALE,
+
+          z:
+            (
+              Math.random() -
+              0.5
+            ) *
+            0.7
+
+        });
+      }
+    }
+  }
+
+
+  return points;
+}
+
+
+/* =========================
+   SET MORPH TARGET
+========================= */
+
+function setHeartMorphText(
+  inputText
+) {
+
+  const text =
+    inputText
+      .normalize("NFC")
+      .trim();
+
+
+  const colorArray =
+    innerGeometry
+      .attributes
+      .color
+      .array;
+
+
+  // =====================
+  // QUAY LẠI TRÁI TIM
+  // =====================
+
+  if (!text) {
+
+    innerTextMode =
+      false;
+
+
+    morphTargetPositions.set(
+      heartTargetPositions
+    );
+
+
+    colorArray.set(
+      heartTargetColors
+    );
+
+
+    innerGeometry
+      .attributes
+      .color
+      .needsUpdate =
+      true;
+
+
+    return;
+  }
+
+
+  // =====================
+  // MORPH THÀNH TEXT
+  // =====================
+
+  const textPoints =
+    sampleMorphText(
+      text
+    );
+
+
+  if (
+    textPoints.length === 0
+  ) {
+    return;
+  }
+
+
+  innerTextMode =
+    true;
+
+
+  for (
+    let i = 0;
+    i < INNER_MORPH_COUNT;
+    i++
+  ) {
+
+    const p =
+      textPoints[
+        Math.floor(
+          Math.random() *
+          textPoints.length
+        )
+      ];
+
+
+    const index =
+      i * 3;
+
+
+    morphTargetPositions[
+      index
+    ] =
+      p.x +
+      (
+        Math.random() -
+        0.5
+      ) *
+      0.08;
+
+
+    morphTargetPositions[
+      index + 1
+    ] =
+      p.y +
+      (
+        Math.random() -
+        0.5
+      ) *
+      0.08;
+
+
+    morphTargetPositions[
+      index + 2
+    ] =
+      p.z;
+
+
+    // Màu text hồng / trắng
+    const randomColor =
+      Math.random();
+
+
+    if (
+      randomColor < 0.7
+    ) {
+
+      colorArray[
+        index
+      ] = 1;
+
+      colorArray[
+        index + 1
+      ] =
+        0.15 +
+        Math.random() *
+        0.12;
+
+      colorArray[
+        index + 2
+      ] =
+        0.35 +
+        Math.random() *
+        0.15;
+
+    }
+
+    else {
+
+      colorArray[
+        index
+      ] = 1;
+
+      colorArray[
+        index + 1
+      ] =
+        0.65 +
+        Math.random() *
+        0.25;
+
+      colorArray[
+        index + 2
+      ] =
+        0.72 +
+        Math.random() *
+        0.2;
+
+    }
+  }
+
+
+  innerGeometry
+    .attributes
+    .color
+    .needsUpdate =
+    true;
+}
+
+
+/* =========================
+   MORPH PHYSICS
+========================= */
+
+function updateHeartTextMorph() {
+
+  const positionArray =
+    innerGeometry
+      .attributes
+      .position
+      .array;
+
+
+  const SPRING =
+    0.075;
+
+  const DAMPING =
+    0.78;
+
+
+  for (
+    let i = 0;
+    i < INNER_MORPH_COUNT;
+    i++
+  ) {
+
+    const index =
+      i * 3;
+
+
+    let px =
+      positionArray[
+        index
+      ];
+
+    let py =
+      positionArray[
+        index + 1
+      ];
+
+    let pz =
+      positionArray[
+        index + 2
+      ];
+
+
+    let vx =
+      morphVelocities[
+        index
+      ];
+
+    let vy =
+      morphVelocities[
+        index + 1
+      ];
+
+    let vz =
+      morphVelocities[
+        index + 2
+      ];
+
+
+    // Spring về target
+    vx +=
+      (
+        morphTargetPositions[
+          index
+        ] -
+        px
+      ) *
+      SPRING;
+
+    vy +=
+      (
+        morphTargetPositions[
+          index + 1
+        ] -
+        py
+      ) *
+      SPRING;
+
+    vz +=
+      (
+        morphTargetPositions[
+          index + 2
+        ] -
+        pz
+      ) *
+      SPRING;
+
+
+    // Heart mode rung nhẹ
+    if (!innerTextMode) {
+
+      vx +=
+        Math.sin(
+          performance.now() *
+          0.001 +
+          i *
+          0.001
+        ) *
+        0.002;
+
+      vy +=
+        Math.cos(
+          performance.now() *
+          0.001 +
+          i *
+          0.0013
+        ) *
+        0.002;
+
+    }
+
+
+    // Damping
+    vx *= DAMPING;
+    vy *= DAMPING;
+    vz *= DAMPING;
+
+
+    // Update position
+    positionArray[
+      index
+    ] =
+      px + vx;
+
+    positionArray[
+      index + 1
+    ] =
+      py + vy;
+
+    positionArray[
+      index + 2
+    ] =
+      pz + vz;
+
+
+    morphVelocities[
+      index
+    ] = vx;
+
+    morphVelocities[
+      index + 1
+    ] = vy;
+
+    morphVelocities[
+      index + 2
+    ] = vz;
+  }
+
+
+  innerGeometry
+    .attributes
+    .position
+    .needsUpdate =
+    true;
+}
 // Ban đầu chưa vẽ particle hoa
 innerGeometry.setDrawRange(
   0,
@@ -3434,7 +4094,7 @@ innerGeometry.setDrawRange(
 const innerParticles =
   new THREE.Points(
     innerGeometry,
-    material
+    heartMaterial
   );
 // Intro: ban đầu chưa vẽ particle galaxy
 outerGeometry.setDrawRange(0, 0);
@@ -3447,11 +4107,112 @@ const outerParticles =
 innerParticles.rotation.order = "ZYX";
 outerParticles.rotation.order = "ZYX";
 
-innerParticles.rotation.z = 0.2;
+innerParticles.rotation.z = 0;
 outerParticles.rotation.z = 0.2;
 
 scene.add(innerParticles);
 scene.add(outerParticles);
+/* =========================
+   MORPH TEXT INPUT
+========================= */
+
+const morphInput =
+  document.createElement(
+    "input"
+  );
+
+morphInput.type =
+  "text";
+
+morphInput.maxLength =
+  15;
+
+morphInput.placeholder =
+  "Gõ chữ vào đây...";
+
+
+morphInput.style.cssText = `
+  position: fixed;
+
+  left: 50%;
+  bottom: 28px;
+
+  transform:
+    translateX(-50%);
+
+  z-index: 500;
+
+  width:
+    min(420px, 78vw);
+
+  box-sizing:
+    border-box;
+
+  padding:
+    13px 22px;
+
+  border:
+    1px solid
+    rgba(255,120,180,0.35);
+
+  border-radius:
+    30px;
+
+  outline:
+    none;
+
+  background:
+    rgba(20,0,30,0.35);
+
+  backdrop-filter:
+    blur(12px);
+
+  color:
+    white;
+
+  font-size:
+    16px;
+
+  text-align:
+    center;
+
+  letter-spacing:
+    1px;
+
+  box-shadow:
+    0 0 25px
+    rgba(255,70,150,0.15);
+
+  opacity:
+    0;
+
+  pointer-events:
+    none;
+
+  transition:
+    opacity 0.8s ease;
+`;
+
+
+document.body.appendChild(
+  morphInput
+);
+
+
+morphInput.addEventListener(
+  "input",
+  (event) => {
+
+    setHeartMorphText(
+      event.target.value
+    );
+
+  }
+);
+
+
+let morphInputShown =
+  false;
 function createHeartTexture() {
 
   const canvas = document.createElement("canvas");
@@ -5140,7 +5901,11 @@ renderer.setAnimationLoop(() => {
   gu.time.value =
     t * Math.PI;
 
+if (introFinished) {
 
+  updateHeartTextMorph();
+
+}
   /* =========================
      CAMERA INTRO
   ========================= */
@@ -5232,11 +5997,35 @@ innerParticles.scale.setScalar(
 );
 
 // Xoay từ rất chậm -> tốc độ cũ
-innerParticles.rotation.y =
-  t * (
-    0.01 +
-    0.04 * roseProgress
-  );
+if (!innerTextMode) {
+
+  // Heart xoay bình thường
+  innerParticles.rotation.y =
+    t * (
+      0.01 +
+      0.04 *
+      roseProgress
+    );
+
+}
+
+else {
+
+  // Text từ từ quay thẳng mặt camera
+  innerParticles.rotation.y =
+    THREE.MathUtils.lerp(
+      innerParticles.rotation.y,
+      0,
+      0.1
+    );
+
+  innerParticles.rotation.x =
+    THREE.MathUtils.lerp(
+      innerParticles.rotation.x,
+      0,
+      0.1
+    );
+}
 
   const galaxyElapsedSec =
   introStartTime === null
@@ -5301,8 +6090,26 @@ outerParticles.rotation.y =
      INNER FLOAT
   ========================= */
 
+if (!innerTextMode) {
+
   innerParticles.position.y =
-    (1 - Math.cos(t * 2)) * 2.5;
+    (
+      1 -
+      Math.cos(t * 2)
+    ) *
+    2.5;
+
+}
+
+else {
+
+  innerParticles.position.y =
+    THREE.MathUtils.lerp(
+      innerParticles.position.y,
+      0,
+      0.1
+    );
+}
 
 /* =========================
    ORBITING HEARTS UPDATE
@@ -5493,7 +6300,24 @@ nebulaGroup.children.forEach((glow) => {
 /* =========================
    LANTERN UPDATE
 ========================= */
+/* =========================
+   SHOW MORPH INPUT
+========================= */
 
+if (
+  introFinished &&
+  !morphInputShown
+) {
+
+  morphInputShown =
+    true;
+
+  morphInput.style.opacity =
+    "1";
+
+  morphInput.style.pointerEvents =
+    "auto";
+}
 if (introFinished) {
 
   lanternSpawnTimer += 0.016;
